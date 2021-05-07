@@ -1,6 +1,6 @@
 from Phidget22.Phidget import *
-from signal import pause
 from Phidget22.Devices.RCServo import *
+from signal import pause
 from time import sleep
 
 servo0 = RCServo()
@@ -19,16 +19,57 @@ servos = {
     servo5: "normal"
 }
 
-def rev_dir(pos, servo_num=0, servo=None): # Reverse Direction
-    if servo != None:
-        return pos if servos[servo] != "reversed" else 180 - pos
-    else:
-        return pos if list(servos.values())[servo_num][1] != "reversed" else 180 - pos
-
 def reset():
     for servo in servos:
-        servo.setTargetPosition(rev_dir(0, servo=servo))
+        move(0, servo=servo)
     sleep(2)
+
+def move(pos, servo_num=0, servo=None):
+    if servo != None:
+        servo.setTargetPosition(pos if servos[servo] != "reversed" else 180 - pos)
+    else:
+        servo = list(servos.keys())[servo_num]
+        servo.setTargetPosition(pos if servos[servo] != "reversed" else 180 - pos)
+
+def grasp():
+    move(25, 5)
+    sleep(1)
+    lift()
+
+def release():
+    drop()
+    move(65, 5)
+    sleep(1)
+
+def grab():
+    move(120, 3)
+    move(65, 5)
+    move(30, 4)
+    drop()
+    sleep(2)
+    grasp()
+
+def turnLeft():
+    move(0, 0)
+    sleep(1)
+
+def turnRight():
+    move(180, 0)
+    sleep(1)
+
+def turnMiddle():
+    move(90, 0)
+    sleep(1)
+
+def lift():
+    move(80, 3)
+    move(0, 1)
+    sleep(1)
+
+def drop():
+    move(120, 3)
+    move(20, 1)
+    sleep(1)
 
 def testing():
     while True:
@@ -36,45 +77,10 @@ def testing():
             pos = int(input("pos: "))
         except ValueError:
             return False
-        servo.setTargetPosition(rev_dir(pos, servo=servo))
-
+        move(pos, servo=servo)
 def program():
-
-    def grasp():
-        servo5.setTargetPosition(25)
-        sleep(1)
-        lift()
-
-    def release():
-        drop()
-        servo5.setTargetPosition(65)
-        sleep(1)
-
-    def grab():
-        servo3.setTargetPosition(rev_dir(120, 3))
-        servo5.setTargetPosition(rev_dir(65, 5))
-        servo4.setTargetPosition(rev_dir(30, 4))
-        drop()
-        sleep(2)
-        grasp()
-
-    def turn180():
-        target_pos = 180 if servo0.getPosition() > 90 else 0
-        servo0.setTargetPosition(rev_dir(target_pos, 0))
-        sleep(1)
-
-    def lift():
-        servo3.setTargetPosition(rev_dir(80, 3))
-        servo1.setTargetPosition(rev_dir(0, 1))
-        sleep(1)
-
-    def drop():
-        servo3.setTargetPosition(rev_dir(120, 3))
-        servo1.setTargetPosition(rev_dir(20, 1))
-        sleep(1)
-
     grab()
-    turn180()
+    turnRight()
     release()
     reset()
 
@@ -84,7 +90,7 @@ try:
         print("Initializing servo: " + str(num), end=" ")
         servo.setChannel(num)
         servo.openWaitForAttachment(1000);
-        servo.setTargetPosition(rev_dir(0, servo=servo))
+        move(0, servo=servo)
         servo.setEngaged(True)
         print("Done!")
     sleep(1)
