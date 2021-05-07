@@ -41,24 +41,36 @@ def testing():
 def program():
 
     def grasp():
-        servo5.setTargetPosition(0)
+        servo5.setTargetPosition(25)
         sleep(1)
+        lift()
 
     def release():
+        drop()
         servo5.setTargetPosition(65)
         sleep(1)
 
     def grab():
         servo3.setTargetPosition(rev_dir(120, 3))
-        servo1.setTargetPosition(rev_dir(30, 1))
         servo5.setTargetPosition(rev_dir(65, 5))
         servo4.setTargetPosition(rev_dir(30, 4))
-        sleep(1)
+        drop()
+        sleep(2)
         grasp()
 
     def turn180():
-        base_pos = abs(servo0.getPosition() - 180)
-        servo0.setTargetPosition(rev_dir(base_pos, 0))
+        target_pos = 180 if servo0.getPosition() > 90 else 0
+        servo0.setTargetPosition(rev_dir(target_pos, 0))
+        sleep(1)
+
+    def lift():
+        servo3.setTargetPosition(rev_dir(80, 3))
+        servo1.setTargetPosition(rev_dir(0, 1))
+        sleep(1)
+
+    def drop():
+        servo3.setTargetPosition(rev_dir(120, 3))
+        servo1.setTargetPosition(rev_dir(20, 1))
         sleep(1)
 
     grab()
@@ -75,7 +87,7 @@ try:
         servo.setTargetPosition(rev_dir(0, servo=servo))
         servo.setEngaged(True)
         print("Done!")
-        sleep(1)
+    sleep(1)
 
     run = input("Run program [y/n]? ")
     while run.lower() == "y":
