@@ -61,6 +61,11 @@ def program():
         servo0.setTargetPosition(rev_dir(base_pos, 0))
         sleep(1)
 
+    grab()
+    turn180()
+    release()
+    reset()
+
 try:
 
     for num, servo in enumerate(servos):
