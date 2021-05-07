@@ -21,14 +21,10 @@ servos = {
     servo5: "normal"
 }
 
-for num, servo in enumerate(servos):
-    print("Initializing servo: " + str(num), end=" ")
-    servo.setChannel(num)
-    servo.openWaitForAttachment(1000);
-    servo.setTargetPosition(reverse_dir(0))
-    servo.setEngaged(True)
-    print("Done!")
-    sleep(1)
+def reset():
+    for servo in servos:
+        servo.setTargetPosition(reverse_dir(0)) # Reset
+    sleep(2)
 
 def testing():
     while True:
@@ -39,17 +35,23 @@ def testing():
         servo.setTargetPosition(reverse_dir(pos))
 
 def program():
-    servo2.setTargetPosition(180)
+    servo3.setTargetPosition(reverse_dir(120))
+    servo1.setTargetPosition(reverse_dir(30))
+    servo5.setTargetPosition(reverse_dir(65))
     sleep(1)
-    servo0.setTargetPosition(70)
-    sleep(1)
-    servo1.setTargetPosition(30)
-    sleep(1)
-    servo3.setTargetPosition(100)
-    sleep(1)
+    servo5.setTargetPosition(reverse_dir(0))
 
 try:
-    # program()
+    for num, servo in enumerate(servos):
+        print("Initializing servo: " + str(num), end=" ")
+        servo.setChannel(num)
+        servo.openWaitForAttachment(1000);
+        servo.setTargetPosition(reverse_dir(0))
+        servo.setEngaged(True)
+        print("Done!")
+        sleep(1)
+
+    program()
     while True:
         servo_index = int(input("servo: "))
         servo = list(servos.keys())[servo_index]
@@ -58,7 +60,6 @@ try:
 
 except (Exception, KeyboardInterrupt) as e:
     print("Error:", e, "Exiting")
-    for servo in servos:
-        servo.setTargetPosition(reverse_dir(0)) # Reset
+    reset()
     for servo in servos:
         servo.close()
