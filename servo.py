@@ -3,8 +3,6 @@ from signal import pause
 from Phidget22.Devices.RCServo import *
 from time import sleep
 
-reverse_dir = lambda pos: 180-pos if servos[servo] == "reversed" else pos
-
 servo0 = RCServo()
 servo1 = RCServo()
 servo2 = RCServo()
@@ -17,13 +15,19 @@ servos = {
     servo1: "normal",
     servo2: "reversed",
     servo3: "normal",
-    servo4: "reversed",
+    servo4: "normal",
     servo5: "normal"
 }
 
+def rev_dir(pos, servo_num=0, servo=None): # Reverse Direction
+    if servo != None:
+        return pos if servos[servo] != "reversed" else 180 - pos
+    else:
+        return pos if list(servos.values())[servo_num][1] != "reversed" else 180 - pos
+
 def reset():
     for servo in servos:
-        servo.setTargetPosition(reverse_dir(0)) # Reset
+        servo.setTargetPosition(rev_dir(0, servo=servo))
     sleep(2)
 
 def testing():
@@ -32,30 +36,51 @@ def testing():
             pos = int(input("pos: "))
         except ValueError:
             return False
-        servo.setTargetPosition(reverse_dir(pos))
+        servo.setTargetPosition(rev_dir(pos, servo=servo))
 
 def program():
-    servo3.setTargetPosition(reverse_dir(120))
-    servo1.setTargetPosition(reverse_dir(30))
-    servo5.setTargetPosition(reverse_dir(65))
-    sleep(1)
-    servo5.setTargetPosition(reverse_dir(0))
+
+    def grasp():
+        servo5.setTargetPosition(0)
+        sleep(1)
+
+    def release():
+        servo5.setTargetPosition(65)
+        sleep(1)
+
+    def grab():
+        servo3.setTargetPosition(rev_dir(120, 3))
+        servo1.setTargetPosition(rev_dir(30, 1))
+        servo5.setTargetPosition(rev_dir(65, 5))
+        servo4.setTargetPosition(rev_dir(30, 4))
+        sleep(1)
+        grasp()
+
+    def turn180():
+        base_pos = abs(servo0.getPosition() - 180)
+        servo0.setTargetPosition(rev_dir(base_pos, 0))
+        sleep(1)
 
 try:
+
     for num, servo in enumerate(servos):
         print("Initializing servo: " + str(num), end=" ")
         servo.setChannel(num)
         servo.openWaitForAttachment(1000);
-        servo.setTargetPosition(reverse_dir(0))
+        servo.setTargetPosition(rev_dir(0, servo=servo))
         servo.setEngaged(True)
         print("Done!")
         sleep(1)
 
-    program()
+    run = input("Run program [y/n]? ")
+    while run.lower() == "y":
+        program()
+        run = input("Run program [y/n]? ")
     while True:
         servo_index = int(input("servo: "))
         servo = list(servos.keys())[servo_index]
         testing()
+
     pause()
 
 except (Exception, KeyboardInterrupt) as e:
