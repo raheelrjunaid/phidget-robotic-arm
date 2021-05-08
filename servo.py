@@ -3,72 +3,68 @@ from Phidget22.Devices.RCServo import *
 from signal import pause
 from time import sleep
 
-servo0 = RCServo()
-servo1 = RCServo()
-servo2 = RCServo()
-servo3 = RCServo()
-servo4 = RCServo()
-servo5 = RCServo()
+class Servo(RCServo):
 
-servos = {
-    servo0: "normal",
-    servo1: "normal",
-    servo2: "reversed",
-    servo3: "normal",
-    servo4: "normal",
-    servo5: "normal"
-}
+    def __init__(self, reverse=False):
+        RCServo.__init__(self)
+        self.reverse = reverse
+
+    def move(self, pos):
+        self.setTargetPosition(pos if self.reverse == False else 180 - pos)
+
+servo0 = Servo()
+servo1 = Servo()
+servo2 = Servo(True)
+servo3 = Servo()
+servo4 = Servo()
+servo5 = Servo()
+
+servos = [servo0, servo1, servo2, servo3, servo4, servo5]
 
 def reset():
     for servo in servos:
-        move(0, servo=servo)
+        servo.move(0)
+        # move(0, servo=servo)
     sleep(2)
 
-def move(pos, servo_num=0, servo=None):
-    if servo != None:
-        servo.setTargetPosition(pos if servos[servo] != "reversed" else 180 - pos)
-    else:
-        servo = list(servos.keys())[servo_num]
-        servo.setTargetPosition(pos if servos[servo] != "reversed" else 180 - pos)
-
 def grasp():
-    move(25, 5)
+    servo5.move(25)
     sleep(1)
     lift()
 
 def release():
     drop()
-    move(65, 5)
+    servo5.move(65)
     sleep(1)
 
 def grab():
-    move(120, 3)
-    move(65, 5)
-    move(30, 4)
+    servo3.move(120)
+    servo5.move(65)
+    servo4.move(30)
     drop()
     sleep(2)
     grasp()
 
 def turnLeft():
-    move(0, 0)
+    servo0.move(0)
     sleep(1)
 
 def turnRight():
-    move(180, 0)
+    servo0.move(180)
     sleep(1)
 
 def turnMiddle():
-    move(90, 0)
+    servo0.move(90)
     sleep(1)
 
 def lift():
-    move(80, 3)
-    move(0, 1)
+    servo3.move(80)
+    servo1.move(0)
     sleep(1)
 
 def drop():
-    move(120, 3)
-    move(20, 1)
+    servo3.move(120)
+    servo1.move(20)
     sleep(1)
 
 def testing():
@@ -77,7 +73,8 @@ def testing():
             pos = int(input("pos: "))
         except ValueError:
             return False
-        move(pos, servo=servo)
+        servo.move(pos)
+
 def program():
     grab()
     turnRight()
@@ -85,12 +82,11 @@ def program():
     reset()
 
 try:
-
     for num, servo in enumerate(servos):
         print("Initializing servo: " + str(num), end=" ")
         servo.setChannel(num)
         servo.openWaitForAttachment(1000);
-        move(0, servo=servo)
+        servo.move(0)
         servo.setEngaged(True)
         print("Done!")
     sleep(1)
@@ -101,7 +97,7 @@ try:
         run = input("Run program [y/n]? ")
     while True:
         servo_index = int(input("servo: "))
-        servo = list(servos.keys())[servo_index]
+        servo = servos[servo_index]
         testing()
 
     pause()
