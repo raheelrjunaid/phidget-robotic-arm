@@ -3,7 +3,7 @@ from Phidget22.Devices.RCServo import *
 from time import sleep
 
 class Servo(RCServo):
-    def __init__(self, channel, reset_angle=0, engage=True, minLim=0, maxLim=180):
+    def __init__(self, channel, reset_angle=0, minLim=0, maxLim=180):
         RCServo.__init__(self)
         self.setChannel(channel)
         self.openWaitForAttachment(1000)
