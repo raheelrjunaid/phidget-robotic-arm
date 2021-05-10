@@ -3,7 +3,7 @@ from Phidget22.Devices.RCServo import *
 from time import sleep
 
 class Servo(RCServo):
-    def __init__(self, channel, reset_angle, engage=True, reverse=False, minLim=0, maxLim=180):
+    def __init__(self, channel, reset_angle=0, engage=True, minLim=0, maxLim=180):
         RCServo.__init__(self)
         self.setChannel(channel)
         self.openWaitForAttachment(1000)
@@ -20,13 +20,16 @@ class Servo(RCServo):
         self.setTargetPosition(pos)
 
 class Arm:
-    def __init__(self):
-        self.base = Servo(0, 0)
-        self.shoulder = Servo(1, 55, minLim=45, maxLim=135)
-        self.elbow = Servo(2, 0, maxLim=90)
-        self.wrist = Servo(3, 0)
-        self.wrist_rotate = Servo(4, 30, minLim=30)
-        self.claw = Servo(5, 0, maxLim=50)
+    def __init__(self, servos):
+        if len(servos) < 6:
+            raise Exception("6 servos are required for the Robotic Arm")
+
+        self.base = servos[0]
+        self.shoulder = servos[1]
+        self.elbow = servos[2]
+        self.wrist = servos[3]
+        self.wrist_rotate = servos[4]
+        self.claw = servos[5]
 
         self.servos = [
             self.base,
