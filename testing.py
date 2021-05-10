@@ -7,6 +7,7 @@ try:
         servo_selection = input("Servo Index:")
         servo = servos[int(servo_selection)]
         servo.setEngaged(True)
+        print("Entering playground, press any letter to exit.")
         while True:
             position = input(f"Servo {servo_selection} Position: ")
             if not position.isnumeric():
